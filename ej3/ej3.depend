@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1694618507 source:c:\users\usuario\documents\prog - tp archivos\ej3\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
