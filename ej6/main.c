@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 /*6) Hacer un programa que permita guardar en un archivo binario (autos.bin), una estructura
 llamada AUTOS con los siguiente campos:
 Marca: EJ: Ford
@@ -30,22 +27,26 @@ el archivo sino su contenido).
 ✓ Salir: Sale del programa. Mientras no se pulse otra opción, el menú debe
 aparecer siempre*/
 
-typedef struct
-{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
     char marca[30];
     char modelo[30];
     char dominio[50];
     float precio;
 } Auto;
 
-void Agregar();
-void Mostrar();
-void BuscarxMarcaModelo();
-void VaciarArchivo();
-
+void Agregar(FILE *archivo, const char *nombreArch);
+void Mostrar(FILE *archivo, const char *nombreArch);
+void BuscarxMarcaModelo(FILE *archivo, const char *nombreArch);
+void VaciarArchivo(FILE *archivo, const char *nombreArch);
 
 int main() {
     int opcion;
+    char *nombreArch = "Autos.bin";
+    FILE *archivo = NULL;
 
     do {
         // Mostrar el menú principal
@@ -61,25 +62,25 @@ int main() {
         switch (opcion) {
             case 1:
                 system("cls");
-                Agregar();
+                Agregar(archivo, nombreArch);
                 system("pause");
                 system("cls");
                 break;
             case 2:
                 system("cls");
-                Mostrar();
+                Mostrar(archivo, nombreArch);
                 system("pause");
                 system("cls");
                 break;
             case 3:
                 system("cls");
-                BuscarxMarcaModelo();
+                BuscarxMarcaModelo(archivo, nombreArch);
                 system("pause");
                 system("cls");
                 break;
             case 4:
                 system("cls");
-                VaciarArchivo();
+                VaciarArchivo(archivo, nombreArch);
                 system("pause");
                 system("cls");
                 break;
@@ -93,16 +94,17 @@ int main() {
         }
     } while (opcion != 5);
 
+    if (archivo != NULL) {
+        fclose(archivo);
+    }
+
     return 0;
 }
 
-void Agregar() {
-    char *nombreArch = "Autos.bin";
-    FILE *archivo = NULL;
+void Agregar(FILE *archivo, const char *nombreArch) {
     Auto a;
 
     archivo = fopen(nombreArch, "ab");
-
     if (archivo == NULL) {
         printf("No se pudo abrir el archivo.\n");
         return;
@@ -131,15 +133,11 @@ void Agregar() {
     fclose(archivo);
 }
 
-void Mostrar() {
-    char *nombreArch = "Autos.bin";
-    FILE *archivo = NULL;
+void Mostrar(FILE *archivo, const char *nombreArch) {
     Auto a;
     int countItems = 0;
 
-    // Abrir el archivo en modo de lectura
     archivo = fopen(nombreArch, "rb");
-
     if (archivo == NULL) {
         printf("No se pudo abrir el archivo.\n");
         return;
@@ -158,20 +156,16 @@ void Mostrar() {
 
     printf("\nHay %d registros en el archivo\n", countItems);
 
-    // Cerrar el archivo
     fclose(archivo);
 }
-void BuscarxMarcaModelo()
-{
-    char *nombreArch = "Autos.bin";
-    FILE *archivo = NULL;
+
+void BuscarxMarcaModelo(FILE *archivo, const char *nombreArch) {
     Auto a;
 
     char nombreBuscado[30];
     int encontrado = 0;
 
     archivo = fopen(nombreArch, "rb");
-
     if (archivo == NULL) {
         printf("No se pudo abrir el archivo.\n");
         return;
@@ -182,8 +176,8 @@ void BuscarxMarcaModelo()
     gets(nombreBuscado);
 
     while (fread(&a, sizeof(Auto), 1, archivo) == 1) {
-        if ((strcmp(strlwr(nombreBuscado), strlwr(a.marca)) == 0) || (strcmp(strlwr(nombreBuscado), strlwr(a.modelo)) == 0))  {
-            printf("Producto encontrado:\n");
+        if (strstr(a.marca, nombreBuscado) || strstr(a.modelo, nombreBuscado)) {
+            printf("Auto encontrado:\n");
             printf("Marca: %s\n", a.marca);
             printf("Modelo: %s\n", a.modelo);
             printf("Dominio: %s\n", a.dominio);
@@ -193,19 +187,14 @@ void BuscarxMarcaModelo()
     }
 
     if (!encontrado) {
-        printf("Producto no encontrado.\n");
+        printf("Auto no encontrado.\n");
     }
 
     fclose(archivo);
 }
 
-void VaciarArchivo() {
-    char *nombreArch = "Autos.bin";
-    FILE *archivo = NULL;
-
-    // Reabrir el archivo en modo de escritura truncando su contenido
+void VaciarArchivo(FILE *archivo, const char *nombreArch) {
     archivo = fopen(nombreArch, "wb");
-
     if (archivo == NULL) {
         perror("Error al abrir el archivo");
         exit(1);
